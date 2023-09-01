@@ -9,7 +9,7 @@ from django.contrib.auth.models import PermissionsMixin,AbstractBaseUser,BaseUse
     user_permissions = models.ManyToManyField(Permission, related_name='customuser_set')"""
 
 class MyUserManager(BaseUserManager):
-    def _create_user(self,username,password,is_active,is_staff,is_superuser,**extra_fields):
+    def _create_user(self,username,is_active,is_staff,is_superuser,password=None,**extra_fields):
         user = self.model(
             username = username,
             is_active = is_active,
@@ -18,10 +18,10 @@ class MyUserManager(BaseUserManager):
             **extra_fields
         )
         user.set_password(password)
-        user.save(using = self.db)
+        user.save(using = self._db)
         return user
 
-    def create_user(self,username,password = None,**extra_fields):
+    def create_user(self,username,password,**extra_fields):
         return self._create_user(username,password,True,False,False,**extra_fields)
 
     def create_superuser(self,username,password = None,**extra_fields):
@@ -47,6 +47,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
+
+    def save(self, *args, **kwargs):   #needed to encrypt the password
+        self.set_password(self.password)
+        super().save(*args, **kwargs)
 
 
 
