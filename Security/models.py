@@ -1,13 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import PermissionsMixin,AbstractBaseUser,BaseUserManager
 
-
-"""class CustomUser(AbstractUser):
-    username = models.CharField(max_length=255,unique=True)
-    password = models.C
-    groups = models.ManyToManyField(Group, related_name='customuser_set')
-    user_permissions = models.ManyToManyField(Permission, related_name='customuser_set')"""
-
 class MyUserManager(BaseUserManager):
     def _create_user(self,username,is_active,is_staff,is_superuser,password=None,**extra_fields):
         user = self.model(
