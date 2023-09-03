@@ -2,6 +2,7 @@ from rest_framework import viewsets, generics
 from .serializers import *
 from rest_framework.response import Response
 from .models import *
+from rest_framework.decorators import action
 
 class CategoryView(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
@@ -26,21 +27,28 @@ class MediaView(viewsets.ModelViewSet):
     queryset = Media.objects.all()
     pagination_class = None
 
+    @action(detail=False, methods=['GET'])
+    def get_medias(self, request):
+        print(request.user)
+        medias = Media.objects.all()
+        media_serializers = MediaSerializerGet(medias, many=True)
+        return Response(media_serializers.data)
 
-class MediaFieldView(viewsets.ModelViewSet):
-    serializer_class = MediaFieldSerializer
-    queryset = Media_Fields.objects.all()
+
+
+
+class MediaContainerView(viewsets.ModelViewSet):
+    serializer_class = MediaContainerSerializer
+    queryset = MediaContainer.objects.all()
     pagination_class = None
 
-    def create(self, request, *args, **kwargs):
-        print(request.data)
-        field = Field(name = request.data['field.name'])
-        field.save()
-        media = Media.objects.filter(id=request.data['media']).first()
-        media_field = Media_Fields(media=media, field=field, field_value=request.data['field_value'])
-        media_field.save()
-        serializer = self.serializer_class(media_field)
-        return Response(serializer.data)
-        #return Response({'message': 'Creacion satisfactoria'}, status=status.HTTP_201_CREATED)
+
+class FieldView(viewsets.ModelViewSet):
+    serializer_class = FieldSerializer
+    queryset = Field.objects.all()
+    pagination_class = None
+
+
+
 
 

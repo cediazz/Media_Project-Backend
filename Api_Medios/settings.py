@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django_filters',
     'Security',
     'MediaManagement',
+    'drf_yasg',
 ]
 
 REST_FRAMEWORK = {
