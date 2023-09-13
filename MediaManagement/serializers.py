@@ -38,11 +38,12 @@ class MediaSerializer(ModelSerializer):
         return media
 
     def update(self, instance, validated_data):
-        print(validated_data)
-        print(instance.description)
-        coordinada_data = validated_data.pop('coordinadas')
-
-        return instance
+        coordinadas_data = validated_data.pop('coordinadas', None)
+        if coordinadas_data:
+            coordinadas_serializer = CoordinadasSerializer(instance.coordinadas, data=coordinadas_data)
+            if coordinadas_serializer.is_valid():
+                coordinadas_serializer.save()
+        return super().update(instance, validated_data)
 
 class MediaSerializerGet(ModelSerializer):
     coordinadas = CoordinadasSerializer(read_only=True)
