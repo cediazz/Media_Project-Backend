@@ -39,15 +39,18 @@ class MediaContainer(models.Model):
 class Field(models.Model):
     name = models.CharField(max_length=64)
     value = models.CharField(max_length=128,default='')
+    link = models.CharField(max_length=255, default='')
 
     class Meta:
         verbose_name = 'field'
 
 class Media_Field(models.Model):
-    media = models.ForeignKey(Media, on_delete=models.CASCADE)
+    media = models.ForeignKey(Media,related_name='media_fields',on_delete=models.CASCADE)
     field = models.ForeignKey(Field, on_delete=models.CASCADE)
+
     class Meta:
         verbose_name = 'media_field'
+        unique_together = ('media', 'field')
 
 
 

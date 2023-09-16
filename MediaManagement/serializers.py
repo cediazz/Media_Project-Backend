@@ -67,11 +67,33 @@ class Media_FieldSerializer(ModelSerializer):
         media_field = Media_Field.objects.create(field=field,**validated_data)
         return media_field
 
+class Media_FieldSerializerPost(ModelSerializer):
+
+   class Meta:
+        model = Media_Field
+        fields = '__all__'
+
 class Media_FieldSerializerGet(ModelSerializer):
     media = MediaSerializerGet(read_only=True)
     field = FieldSerializer(read_only=True)
     class Meta:
         model = Media_Field
+        fields = '__all__'
+
+class FieldsAllSerializer(ModelSerializer):
+
+    field = FieldSerializer(read_only=True)
+    class Meta:
+        model = Media_Field
+        fields = ['field']
+
+class Media_Fields_AllSerializer(ModelSerializer):
+    coordinadas = CoordinadasSerializer(read_only=True)
+    category = CategorySerializer(read_only=True)
+    plan = PlanSerializer(read_only=True)
+    media_fields = FieldsAllSerializer(many=True, read_only=True)
+    class Meta:
+        model = Media
         fields = '__all__'
 
 class MediaContainerSerializer(ModelSerializer):
@@ -81,18 +103,7 @@ class MediaContainerSerializer(ModelSerializer):
         model = MediaContainer
         fields = '__all__'
 
-"""Estructura para la insercion del Medio y los campos
-{
-  
-  "coordinadas": {
-        "lat": "6755",
-        "lng": "3453"
-    },
-  "description": "switch mio",
-  "category": 1,
-  "plan": 1,
-  
-}"""
+
 
 
 

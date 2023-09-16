@@ -44,6 +44,12 @@ class MediaView(viewsets.ModelViewSet):
         media_serializers = MediaSerializerGet(paginated_queryset, many=True)
         return pagination_class.get_paginated_response(media_serializers.data)
 
+    @action(detail=False, methods=['GET'],serializer_class=Media_Fields_AllSerializer)
+    def get_media_fields(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        media_serializers = Media_Fields_AllSerializer(queryset, many=True)
+        return Response(media_serializers.data)
+
 
 
 class Media_FieldView(viewsets.ModelViewSet):
@@ -52,6 +58,7 @@ class Media_FieldView(viewsets.ModelViewSet):
     pagination_class = None
     filterset_fields = {
         "media__description": ['exact'],
+
     }
 
     @action(detail=False, methods=['GET'])
@@ -59,6 +66,14 @@ class Media_FieldView(viewsets.ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         media_field_serializers = Media_FieldSerializerGet(queryset, many=True)
         return Response(media_field_serializers.data)
+
+    @action(detail=False, methods=['GET','POST'], serializer_class=Media_FieldSerializerPost)
+    def post_media_field_view(self, request):
+        media_field_serializers = Media_FieldSerializerPost(data=request.data)
+        if media_field_serializers.is_valid():
+            media_field_serializers.save()
+            return Response(media_field_serializers.data)
+        return Response(media_field_serializers.errors)
 
 
 
