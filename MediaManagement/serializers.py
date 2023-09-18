@@ -11,6 +11,14 @@ class PlanSerializer(ModelSerializer):
         model = Plan
         fields = '__all__'
 
+    def to_representation(self, instance):
+        return {
+            "id": instance.id,
+            "description": instance.description,
+            "image": f"http://127.0.0.1:8000/Media/{instance.image}",
+
+        }
+
 
 class CoordinadasSerializer(ModelSerializer):
     class Meta:

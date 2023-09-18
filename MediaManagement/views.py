@@ -18,6 +18,9 @@ class PlanView(viewsets.ModelViewSet):
     pagination_class = None
 
 
+
+
+
 class CoordinadasView(viewsets.ModelViewSet):
     serializer_class = CoordinadasSerializer
     queryset = Coordinadas.objects.all()
@@ -29,7 +32,7 @@ class MediaView(viewsets.ModelViewSet):
     queryset = Media.objects.all()
     pagination_class = None
     filterset_fields = {
-        "description": ['exact'],
+        'description': ['exact'],
         'category__description': ['exact'],
         'plan__description': ['exact']
     }
@@ -48,6 +51,14 @@ class MediaView(viewsets.ModelViewSet):
     def get_media_fields(self, request):
         queryset = self.filter_queryset(self.get_queryset())
         media_serializers = Media_Fields_AllSerializer(queryset, many=True)
+        return Response(media_serializers.data)
+
+    @action(detail=False, methods=['GET'], serializer_class=Media_Fields_AllSerializer)
+    def get_media_fields_link(self, request):
+        description1= request.query_params.get('description1')
+        description2 = request.query_params.get('description2')
+        medias = Media.objects.filter(description=description1) | Media.objects.filter(description=description2)
+        media_serializers = Media_Fields_AllSerializer(medias, many=True)
         return Response(media_serializers.data)
 
 
