@@ -31,8 +31,8 @@ class Media(models.Model):
 
 
 class MediaContainer(models.Model):
-    father = models.ForeignKey(Media, on_delete=models.CASCADE, related_name='father_containers')
-    son = models.ForeignKey(Media, on_delete=models.CASCADE, related_name='son_containers')
+    father = models.ForeignKey(Media, on_delete=models.CASCADE, related_name='son_containers')
+    son = models.ForeignKey(Media, on_delete=models.CASCADE, related_name='father_containers')
     class Meta:
         verbose_name = 'media_container'
 

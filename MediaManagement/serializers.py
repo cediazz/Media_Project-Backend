@@ -47,14 +47,17 @@ class MediaSerializer(ModelSerializer):
         media_father = None
         if 'mediaFatherId' in extra_data:
             media_father_id = extra_data['mediaFatherId']
-            media_father = Media.objects.filter(id = media_father_id).first()
+            media_father = Media.objects.filter(id=media_father_id).first()
         coordinada_data = validated_data.pop('coordinadas')
         coordinadas = Coordinadas.objects.filter(lat=coordinada_data['lat'], lng=coordinada_data['lng']).first()
         if coordinadas == None:
             coordinadas = Coordinadas.objects.create(**coordinada_data)
         media = Media.objects.create(coordinadas=coordinadas, **validated_data)
-        if(media_father != None):
-         MediaContainer.objects.create(father = media_father , son=media)
+        if (media_father != None):
+            MediaContainer.objects.create(father=media_father, son=media)
+        if 'mediaSonId' in extra_data: #para adicionarle un medio ver como puedo hacer para cambiar los datos de la coordenada
+            media_son_id = extra_data['mediaSonId']
+            MediaContainer.objects.create(father=media, son=media_son_id)
         return media
 
     def update(self, instance, validated_data):
@@ -114,17 +117,13 @@ class FieldsAllSerializer(ModelSerializer):
         fields = ['field']
 
 
-
-
-
 class MediaContainerSerializer(ModelSerializer):
-
-     class Meta:
+    class Meta:
         model = MediaContainer
         fields = '__all__'
 
 
-class MediaContainerSonSerializer(ModelSerializer):
+class MediaContainerFatherSerializer(ModelSerializer):
     coordinadas = CoordinadasSerializer(read_only=True)
     category = CategorySerializer(read_only=True)
     plan = PlanSerializer(read_only=True)
@@ -134,14 +133,13 @@ class MediaContainerSonSerializer(ModelSerializer):
         model = Media
         fields = '__all__'
 
+
 class MediaContainerSerializerGet(ModelSerializer):
-
-    son = MediaContainerSonSerializer(read_only=True)
-
+    father = MediaContainerFatherSerializer(read_only=True)
 
     class Meta:
         model = MediaContainer
-        fields = ['son']
+        fields = ['father']
 
 
 class Media_Fields_AllSerializer(ModelSerializer):
@@ -149,7 +147,27 @@ class Media_Fields_AllSerializer(ModelSerializer):
     category = CategorySerializer(read_only=True)
     plan = PlanSerializer(read_only=True)
     media_fields = FieldsAllSerializer(many=True, read_only=True)
-    father_containers = MediaContainerSerializerGet(many= True,read_only=True)
+    father_containers = MediaContainerSerializerGet(many=True, read_only=True)
+
+    class Meta:
+        model = Media
+        fields = '__all__'
+
+
+class MediaContainerSerializerGetSon(ModelSerializer):
+    son = MediaContainerFatherSerializer(read_only=True)
+
+    class Meta:
+        model = MediaContainer
+        fields = ['son']
+
+
+class Media_Fields_Sons_AllSerializer(ModelSerializer):
+    coordinadas = CoordinadasSerializer(read_only=True)
+    category = CategorySerializer(read_only=True)
+    plan = PlanSerializer(read_only=True)
+    media_fields = FieldsAllSerializer(many=True, read_only=True)
+    son_containers = MediaContainerSerializerGetSon(many=True, read_only=True)
 
     class Meta:
         model = Media

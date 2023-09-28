@@ -29,7 +29,7 @@ class CoordinadasView(viewsets.ModelViewSet):
 
 class MediaView(viewsets.ModelViewSet):
     serializer_class = MediaSerializer
-    queryset = Media.objects.all()
+    queryset = Media.objects.order_by('description')
     pagination_class = None
     filterset_fields = {
         'description': ['exact'],
@@ -53,6 +53,12 @@ class MediaView(viewsets.ModelViewSet):
         media_serializers = Media_Fields_AllSerializer(queryset, many=True)
         return Response(media_serializers.data)
 
+    @action(detail=False, methods=['GET'], serializer_class=Media_Fields_Sons_AllSerializer)
+    def get_media_fields_sons(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        media_serializers = Media_Fields_Sons_AllSerializer(queryset, many=True)
+        return Response(media_serializers.data)
+
     @action(detail=False, methods=['GET'], serializer_class=Media_Fields_AllSerializer)
     def get_media_fields_link(self, request):
         description1= request.query_params.get('description1')
@@ -60,6 +66,14 @@ class MediaView(viewsets.ModelViewSet):
         medias = Media.objects.filter(description=description1) | Media.objects.filter(description=description2)
         media_serializers = Media_Fields_AllSerializer(medias, many=True)
         return Response(media_serializers.data)
+
+    #excluir los medios que aparezcan en la tabla MediaContainer como hijos:
+    @action(detail=False, methods=['GET'])
+    def get_medias_exclude(self, request):
+        queryset = Media.objects.exclude(id__in=MediaContainer.objects.values('son_id'))
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
 
 
 
