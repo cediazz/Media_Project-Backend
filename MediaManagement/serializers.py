@@ -57,7 +57,12 @@ class MediaSerializer(ModelSerializer):
             MediaContainer.objects.create(father=media_father, son=media)
         if 'mediaSonId' in extra_data: #para adicionarle un medio ver como puedo hacer para cambiar los datos de la coordenada
             media_son_id = extra_data['mediaSonId']
-            MediaContainer.objects.create(father=media, son=media_son_id)
+            media_son = Media.objects.filter(id=media_son_id).first()
+            media_son_coordinadas = Coordinadas.objects.filter(id = media_son.coordinadas.id).first()
+            media_son_coordinadas.lat = coordinada_data['lat']
+            media_son_coordinadas.lng = coordinada_data['lng']
+            media_son_coordinadas.save()
+            MediaContainer.objects.create(father=media, son=media_son)
         return media
 
     def update(self, instance, validated_data):

@@ -22,7 +22,7 @@ class Coordinadas(models.Model):
 
 
 class Media(models.Model):
-    description = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, unique=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
     plan = models.ForeignKey(Plan, on_delete=models.PROTECT)
     coordinadas = models.ForeignKey(Coordinadas, on_delete=models.PROTECT)
