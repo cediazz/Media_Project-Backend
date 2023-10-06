@@ -92,13 +92,7 @@ class Media_FieldView(viewsets.ModelViewSet):
         media_field_serializers = Media_FieldSerializerGet(queryset, many=True)
         return Response(media_field_serializers.data)
 
-    @action(detail=False, methods=['GET','POST'], serializer_class=Media_FieldSerializerPost)
-    def post_media_field_view(self, request):
-        media_field_serializers = Media_FieldSerializerPost(data=request.data)
-        if media_field_serializers.is_valid():
-            media_field_serializers.save()
-            return Response(media_field_serializers.data)
-        return Response(media_field_serializers.errors)
+
 
 
 

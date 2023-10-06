@@ -21,6 +21,14 @@ class Coordinadas(models.Model):
         verbose_name = 'coordinadas'
 
 
+class Field(models.Model):
+    name = models.CharField(max_length=64)
+    category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='fields')
+
+    class Meta:
+        verbose_name = 'field'
+
+
 class Media(models.Model):
     description = models.CharField(max_length=255, unique=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
@@ -29,6 +37,15 @@ class Media(models.Model):
     class Meta:
         verbose_name = 'media'
 
+class Media_Field(models.Model):
+    media = models.ForeignKey(Media,related_name='media_fields',on_delete=models.CASCADE)
+    field = models.ForeignKey(Field, on_delete=models.CASCADE)
+    field_value = models.CharField(max_length=128)
+    link_media = models.CharField(max_length=255, default='')
+
+    class Meta:
+        verbose_name = 'media_field'
+        unique_together = ('media', 'field')
 
 class MediaContainer(models.Model):
     father = models.ForeignKey(Media, on_delete=models.CASCADE, related_name='son_containers')
@@ -36,21 +53,9 @@ class MediaContainer(models.Model):
     class Meta:
         verbose_name = 'media_container'
 
-class Field(models.Model):
-    name = models.CharField(max_length=64)
-    value = models.CharField(max_length=128,default='')
-    link = models.CharField(max_length=255, default='')
 
-    class Meta:
-        verbose_name = 'field'
 
-class Media_Field(models.Model):
-    media = models.ForeignKey(Media,related_name='media_fields',on_delete=models.CASCADE)
-    field = models.ForeignKey(Field, on_delete=models.CASCADE)
 
-    class Meta:
-        verbose_name = 'media_field'
-        unique_together = ('media', 'field')
 
 
 

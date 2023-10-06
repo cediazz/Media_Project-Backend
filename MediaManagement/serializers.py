@@ -1,8 +1,13 @@
 from rest_framework.serializers import ModelSerializer
 from .models import Category, Plan, Coordinadas, Media, Field, MediaContainer, Media_Field
 
+class FieldSerializer(ModelSerializer):
+    class Meta:
+        model = Field
+        fields = '__all__'
 
 class CategorySerializer(ModelSerializer):
+    fields = FieldSerializer(many=True, read_only=True)
     class Meta:
         model = Category
         fields = '__all__'
@@ -28,10 +33,7 @@ class CoordinadasSerializer(ModelSerializer):
         fields = '__all__'
 
 
-class FieldSerializer(ModelSerializer):
-    class Meta:
-        model = Field
-        fields = '__all__'
+
 
 
 class MediaSerializer(ModelSerializer):
@@ -53,6 +55,7 @@ class MediaSerializer(ModelSerializer):
         if coordinadas == None:
             coordinadas = Coordinadas.objects.create(**coordinada_data)
         media = Media.objects.create(coordinadas=coordinadas, **validated_data)
+        
         if (media_father != None):
             MediaContainer.objects.create(father=media_father, son=media)
         if 'mediaSonId' in extra_data: #para adicionarle un medio ver como puedo hacer para cambiar los datos de la coordenada
@@ -85,24 +88,12 @@ class MediaSerializerGet(ModelSerializer):
 
 
 class Media_FieldSerializer(ModelSerializer):
-    field = FieldSerializer()
+
 
     class Meta:
         model = Media_Field
         fields = '__all__'
 
-    def create(self, validated_data):
-        print(validated_data)
-        field_data = validated_data.pop('field')
-        field = Field.objects.create(**field_data)
-        media_field = Media_Field.objects.create(field=field, **validated_data)
-        return media_field
-
-
-class Media_FieldSerializerPost(ModelSerializer):
-    class Meta:
-        model = Media_Field
-        fields = '__all__'
 
 
 class Media_FieldSerializerGet(ModelSerializer):
