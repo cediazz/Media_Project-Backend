@@ -46,16 +46,24 @@ class MediaSerializer(ModelSerializer):
     def create(self, validated_data):
         # Acceder a los datos no validados o enviados de más
         extra_data = self.context['request'].data
+        print(extra_data)
         media_father = None
+        #******Si se envia un Id de Medio padre, buscar el medio padre*************
         if 'mediaFatherId' in extra_data:
             media_father_id = extra_data['mediaFatherId']
             media_father = Media.objects.filter(id=media_father_id).first()
+        #*******Insertar las coordenadas*********
         coordinada_data = validated_data.pop('coordinadas')
         coordinadas = Coordinadas.objects.filter(lat=coordinada_data['lat'], lng=coordinada_data['lng']).first()
         if coordinadas == None:
             coordinadas = Coordinadas.objects.create(**coordinada_data)
+        #*******Insertar el Medio*******
         media = Media.objects.create(coordinadas=coordinadas, **validated_data)
-        
+        #*******Insertar Campos del Medio*******
+        for key, value in extra_data['fields'].items():
+            field = Field.objects.filter(id = key).first()
+            Media_Field.objects.create(media =media, field = field, field_value=value['value'], link_media=value['link'])
+
         if (media_father != None):
             MediaContainer.objects.create(father=media_father, son=media)
         if 'mediaSonId' in extra_data: #para adicionarle un medio ver como puedo hacer para cambiar los datos de la coordenada
@@ -110,7 +118,7 @@ class FieldsAllSerializer(ModelSerializer):
 
     class Meta:
         model = Media_Field
-        fields = ['field']
+        fields = ['field', 'link_media', 'field_value']
 
 
 class MediaContainerSerializer(ModelSerializer):
@@ -142,9 +150,8 @@ class Media_Fields_AllSerializer(ModelSerializer):
     coordinadas = CoordinadasSerializer(read_only=True)
     category = CategorySerializer(read_only=True)
     plan = PlanSerializer(read_only=True)
-    media_fields = FieldsAllSerializer(many=True, read_only=True)
     father_containers = MediaContainerSerializerGet(many=True, read_only=True)
-
+    media_fields = FieldsAllSerializer(many=True , read_only=True)
     class Meta:
         model = Media
         fields = '__all__'
