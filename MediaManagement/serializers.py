@@ -63,25 +63,57 @@ class MediaSerializer(ModelSerializer):
         for key, value in extra_data['fields'].items():
             field = Field.objects.filter(id = key).first()
             Media_Field.objects.create(media =media, field = field, field_value=value['value'], link_media=value['link'])
-
+        #Insertar Medio padre e hijo si se requiere
         if (media_father != None):
             MediaContainer.objects.create(father=media_father, son=media)
-        if 'mediaSonId' in extra_data: #para adicionarle un medio ver como puedo hacer para cambiar los datos de la coordenada
+        if 'mediaSonId' in extra_data:
             media_son_id = extra_data['mediaSonId']
             media_son = Media.objects.filter(id=media_son_id).first()
             media_son_coordinadas = Coordinadas.objects.filter(id = media_son.coordinadas.id).first()
             media_son_coordinadas.lat = coordinada_data['lat']
             media_son_coordinadas.lng = coordinada_data['lng']
             media_son_coordinadas.save()
+            media_son.plan = validated_data['plan']
+            media_son.save()
             MediaContainer.objects.create(father=media, son=media_son)
         return media
 
     def update(self, instance, validated_data):
-        coordinadas_data = validated_data.pop('coordinadas', None)
+        extra_data = self.context['request'].data
+        #print(extra_data)
+       # print(validated_data)
+        coordinadas_data = validated_data.pop('coordinadas')
         if coordinadas_data:
             coordinadas_serializer = CoordinadasSerializer(instance.coordinadas, data=coordinadas_data)
             if coordinadas_serializer.is_valid():
                 coordinadas_serializer.save()
+        # *******Actualizar valores de los Campos del Medio*******
+        for key, value in extra_data['fields'].items():
+            media_field = Media_Field.objects.filter(id=value['idMediaField']).first()
+            media_field.field_value = value['value']
+            media_field.link_media = value['link']
+            media_field.save()
+        if 'mediaSonId' in extra_data:
+            media_son_id = extra_data['mediaSonId']
+            media_son = Media.objects.filter(id=media_son_id).first()
+            media_son_coordinadas = Coordinadas.objects.filter(id = media_son.coordinadas.id).first()
+            media_son_coordinadas.lat = coordinadas_data['lat']
+            media_son_coordinadas.lng = coordinadas_data['lng']
+            media_son_coordinadas.save()
+            media_son.plan = validated_data['plan']
+            media_son.save()
+            MediaContainer.objects.create(father=instance, son=media_son)
+        else:
+            media_container = MediaContainer.objects.filter(father = instance.id).first()
+            print(media_container)
+            media_son = Media.objects.filter(id=media_container.son.id).first()
+            media_son_coordinadas = Coordinadas.objects.filter(id=media_son.coordinadas.id).first()
+            media_son_coordinadas.lat = coordinadas_data['lat']
+            media_son_coordinadas.lng = coordinadas_data['lng']
+            media_son_coordinadas.save()
+            #valorar realizar un ciclo para actualizar el plano de los medios hijos
+            media_son.plan = validated_data['plan']
+            media_son.save()
         return super().update(instance, validated_data)
 
 

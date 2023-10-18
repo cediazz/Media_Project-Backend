@@ -23,7 +23,7 @@ class PlanView(viewsets.ModelViewSet):
 
 class CoordinadasView(viewsets.ModelViewSet):
     serializer_class = CoordinadasSerializer
-    queryset = Coordinadas.objects.all()
+    queryset = Coordinadas.objects.all().order_by('id')
     pagination_class = None
 
 
